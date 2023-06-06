@@ -1,0 +1,44 @@
+stages:
+  - build
+  - codStyle
+  - tests
+  - deploy
+
+make_cat_grep:
+  stage:  build
+  script:
+    - cd src/cat && make all
+    - mkdir ../../build
+    - cp s21_cat ../../build/
+    - cd ../grep && make all
+    - cp s21_grep ../../build/
+    - echo "build OK"
+  
+
+  artifacts:
+      paths:
+        - build/
+      expire_in: 30 days
+
+check_code_style:
+  stage: codStyle
+  script:
+    - cp materials/linters/.clang-format src/
+    - clang-format -n -Werror src/cat/*.c src/cat/*.h src/grep/*.c src/grep/*.h
+    - echo "codStyle OK"
+
+check_for_tests:
+  stage: tests
+  script:
+    - cd src/cat && make test
+    - cd ../grep && make test
+
+deploy_app:
+  stage: deploy
+  script:
+    - bash src/deploy.sh
+    # - ping -c 3 10.10.0.2
+    # - sudo cat /home/cicd/.ssh/id_rsa.pub
+    # - ssh cd@10.10.0.2
+    # - scp -r /home/gitlab-runner/builds/x8SensNB/0/students/DO6_CICD.ID_356283/zonanada_student.21_school.ru/DO6_CICD-0/build cd@10.10.0.2:/home/cd
+  

@@ -1,0 +1,13 @@
+docker run -d --name myNginx -p 81:81 nginx
+docker exec -it myNginx /bin/sh
+docker cp nginx.conf myNginx:/etc/nginx
+docker cp server.c myNginx:/home
+apt update
+apt upgrade
+apt -y install build-essential
+apt-get install -y libfcgi libfcgi-dev spawn-fcgi
+gcc server.c -lfcgi -o server
+nginx -s reload
+spawn-fcgi -p 8080 -n server
+docker build -t zovma:v1 .
+
